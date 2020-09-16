@@ -1,4 +1,3 @@
-const curves = require('./curves')
 const defaultArgs = {
     type: 'scroll'
 }
@@ -10,16 +9,67 @@ const animations = {
     scroll: scrollAnimation
 }
 
+const defaultPageArgs = {
+    fps: 60,
+    delay: 1000,
+    scrollBy: 1,
+    containerHeight: 0,
+    itemHeight: 0,
+    startId: 0,
+    lastItemId: 0,
+}
+function ScrollPage(args) {
+    args = Object.assign(defaultPageArgs, args);
+    const { fps, delay, scrollBy, containerHeight, itemHeight, startId, marginTop, lastItemId, onEnd } = args;
+
+    function getNextStartId() {
+        const next = Number.parseInt((containerHeight / itemHeight).toFixed(0)) - 1;
+        return next;
+    }
+
+    const nextStartId = startId + getNextStartId()
+    const nextStartElement = document.querySelector(`[data-id="${nextStartId}"]`);
+
+    let nextBound = { top: 0 };
+    if (nextStartElement !== null) {
+        nextStartElement.style.backgroundColor = 'cyan'
+        nextBound = nextStartElement.getBoundingClientRect();
+    }
+
+    const distance = nextBound.top - marginTop;
+    const anim = scrollByFPSAnimation({
+        fps,
+        scrollY: scrollBy,
+        distance,
+        started() {
+            console.log("Scroll Started")
+        },
+        onStopped(end) {
+            console.log("Scroll Stopped");
+            if (nextStartElement === null || end ) {
+                console.error("RESET Scroller");
+                if (onEnd) {
+                    setTimeout(onEnd, delay);
+                }
+            } else {
+                ScrollPage({ ...args, startId: nextStartId })
+            }
+        }
+    });
+
+    setTimeout(anim.start, delay);
+}
+
 function Scroller(args) {
     args = Object.assign(defaultArgs, args);
     let looper;
     console.log(args);
 
     const anim = scrollByFPSAnimation({
-        // fps: 60,
-        // scrollY: 1,
+        fps: 60,
+        scrollY: 10,
         // minY: 0,
-        maxY: 3200,
+        // maxY: 3200,
         started(loopId) {
             looper = loopId
             console.log('Loop Started', looper)
@@ -63,12 +113,16 @@ function scrollByFPSAnimation(args) {
         scrollX = args.scrollX,
         currentY = args.scrollY;
 
-    let curve = 1;
+    let curve = 1,
+        travelled = 0,
+        maxDistance = window.scrollY - (args.distance || 0)
 
     let then = Date.now();
     let now, elapsed, id;
     let started = false,
         stopped = false;
+
+    const margin = Number.parseInt(getComputedStyle(document.body).marginTop) + Number.parseInt(getComputedStyle(document.body).marginBottom);
 
     const tmp = args.started;
     args.started = (loopId) => {
@@ -76,12 +130,12 @@ function scrollByFPSAnimation(args) {
         return tmp(loopId);
     }
 
-    function stop() {
+    function stop(end = false) {
         stopped = true;
         started = false;
         window.removeEventListener('scroll', scrollListener);
         if (args.onStopped)
-            args.onStopped();
+            args.onStopped(end);
     }
 
     function start() {
@@ -104,22 +158,38 @@ function scrollByFPSAnimation(args) {
             if (elapsed > fpsInterval) {
                 then = now - (elapsed % fpsInterval);
 
-                const margin = Number.parseInt(getComputedStyle(document.body).marginTop) + Number.parseInt(getComputedStyle(document.body).marginBottom);
+                if (args.distance) {
+                    let y = args.scrollY;
 
-                const pageHeight = document.body.scrollHeight + margin;
-                const maxScroll = pageHeight - window.scrollY - window.innerHeight;
+                    let nextScroll;
+                    if (travelled + args.scrollY > args.distance)
+                        nextScroll = args.distance - travelled
+                    else
+                        nextScroll = scrollY;
 
-                // console.log({
-                //     currentY,
-                //     nextY: window.scrollY + (scrollY * curve < 1 ? 1 : scrollY * curve),
-                //     diff: (window.scrollY + (scrollY * curve < 1 ? 1 : scrollY * curve)) - currentY
-                // })
+                    if (nextScroll <= 0) {
+                        stop();
+                        cancelAnimationFrame(id);
+                    }
 
-                currentY = window.scrollY + (scrollY * curve < 1 ? 1 : scrollY * curve)
+                    window.scrollBy(scrollX, nextScroll)
+                } else {
 
-                window.scrollTo(scrollX, currentY);
-                // window.scrollBy(scrollX, scrollY * curve < 1 ? 1 : scrollY * curve);
-                // console.log('ScrollBy: ', scrollY * curve < 1 ? 1 : scrollY * curve, curve)
+                    const pageHeight = document.body.scrollHeight + margin;
+                    const maxScroll = pageHeight - window.scrollY - window.innerHeight;
+
+                    // console.log({
+                    //     currentY,
+                    //     nextY: window.scrollY + (scrollY * curve < 1 ? 1 : scrollY * curve),
+                    //     diff: (window.scrollY + (scrollY * curve < 1 ? 1 : scrollY * curve)) - currentY
+                    // })
+
+                    currentY = window.scrollY + scrollY // + (scrollY * curve < 1 ? 1 : scrollY * curve)
+
+                    window.scrollBy(scrollX, currentY);
+                    // window.scrollBy(scrollX, scrollY * curve < 1 ? 1 : scrollY * curve);
+                    // console.log('ScrollBy: ', scrollY * curve < 1 ? 1 : scrollY * curve, curve)
+                }
             }
         }
 
@@ -132,23 +202,14 @@ function scrollByFPSAnimation(args) {
         const pageHeight = document.body.scrollHeight + margin;
         const maxScroll = pageHeight - window.scrollY - window.innerHeight;
 
-        const curveTest = window.scrollY / (args.maxY ? args.maxY : pageHeight / 2)
-        console.log(curveTest)
-
-        if (pageHeight - maxScroll < pageHeight / 2) {
-            curve = 5 * curves.easeOutQuad(curveTest);
-        } else {
-            curve = 5 * curves.easeOutQuad(curveTest);
+        if (args.distance) {
+            travelled += maxDistance > window.scrollY ? window.scrollY - maxDistance : scrollY;
+            if (travelled >= args.distance || window.scrollY + window.innerHeight >= document.body.scrollHeight + margin) {
+                cancelAnimationFrame(id)
+                stop(window.scrollY + window.innerHeight >= document.body.scrollHeight + margin);
+                return;
+            }
         }
-
-        // console.log({
-        //     pageHeight,
-        //     maxScroll,
-        //     diff: pageHeight - maxScroll,
-        //     scrollY: window.scrollY,
-        //     innerHeight: window.innerHeight,
-        //     maxY: args.maxY,
-        // })
 
         if (maxScroll <= 0 || (typeof args.maxY === 'number' && window.scrollY >= args.maxY)) {
             if (id) {
@@ -178,4 +239,4 @@ function scrollAnimation() {
     requestAnimationFrame(scrollAnimation);
 }
 
-module.exports = Scroller;
+module.exports = ScrollPage;

@@ -8,15 +8,10 @@ module.exports = {
     // entry: {
     //     main: "./src/index.js",
     // },
-    mode: "development",
+    mode: "production",
     output: {
         path: path.join(__dirname, 'dist'),
         filename: "js/[name]-[contenthash].js"
-    },
-    devServer: {
-        contentBase: path.join(__dirname, 'dist'),
-        // compress: true,
-        port: 3005
     },
     module: {
         rules: [
@@ -53,7 +48,8 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: path.join(__dirname, "src", "index.html"),
             filename: path.join(__dirname, "dist", "index.html"),
-            inject: "body"
+            inject: "body",
+            minify: false
         }),
     ],
     optimization: {
