@@ -21,9 +21,9 @@ import './style/main.scss';
     const scroller = require('./scroller');
     scroller({
         containerHeight,
-        fps: 10,
+        fps: 60,
         delay: 5000,
-        scrollBy: 52,
+        scrollBy: 5,
         itemHeight: items.length > 0 ? items[0].clientHeight : 0,
         marginTop: header.clientHeight,
         lastItemId: Number.parseInt(items[items.length - 1].getAttribute('data-id')),
