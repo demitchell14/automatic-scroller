@@ -17,9 +17,14 @@
     "sass-loader": "^8.0.2",
     "css-loader": "^3.5.3",
     "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^4.2.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
+  },
+  "peerDependencies": {
+    "terser": "^5.3.3"
   },
   "dependencies": {}
 }

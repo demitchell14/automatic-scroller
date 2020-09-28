@@ -2,38 +2,40 @@ import './style/main.scss';
 // require('./main.scss')
 (function() {
     fillPage();
-
-    const header = document.querySelector('.header');
-    const footer = document.querySelector('.footer');
-    const items = document.querySelectorAll('[data-repeatable]');
-    const table = document.getElementById('list');
-
-    let containerHeight = window.innerHeight;
-    if (header) {
-        containerHeight -= header.clientHeight;
-        table.style.paddingTop = header.clientHeight + "px"
-    }
-    if (footer) {
-        containerHeight -= footer.clientHeight;
-        table.style.paddingBottom = footer.clientHeight + "px"
-    }
-
     const scroller = require('./scroller');
-    scroller({
-        containerHeight,
-        fps: 10,
-        delay: 5000,
-        scrollBy: 52,
-        itemHeight: items.length > 0 ? items[0].clientHeight : 0,
-        marginTop: header.clientHeight,
-        lastItemId: Number.parseInt(items[items.length - 1].getAttribute('data-id')),
-        onEnd() {
-            window.scrollTo(0, 0);
-            location.reload();
-        }
-    });
-})()
 
+    window.autoScroller = scroller;
+    window.autoScrollerMin = (function() {
+        const header = document.querySelector('.header');
+        const footer = document.querySelector('.footer');
+        const items = document.querySelectorAll('[data-id]');
+        const table = document.getElementById('list');
+
+        let containerHeight = window.innerHeight;
+        if (header) {
+            containerHeight -= header.clientHeight;
+            table.style.paddingTop = header.clientHeight + "px"
+        }
+        if (footer) {
+            containerHeight -= footer.clientHeight;
+            table.style.paddingBottom = footer.clientHeight + "px"
+        }
+
+        return function(args) {
+            const { fps, delay, scrollBy, onEnd } = args;
+            scroller({
+                containerHeight,
+                fps,
+                delay,
+                scrollBy,
+                itemHeight: items.length > 0 ? items[0].clientHeight : 0,
+                marginTop: header.clientHeight,
+                lastItemId: Number.parseInt(items[items.length - 1].getAttribute('data-id')),
+                onEnd: onEnd
+            });
+        }
+    })();
+})();
 
 /**
  * Testing function to build table

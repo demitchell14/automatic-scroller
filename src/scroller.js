@@ -5,10 +5,6 @@ const defaultArgs = {
 // curves.easeInOutCubic(.5)
 let loop = 0, stopped = false;
 
-const animations = {
-    scroll: scrollAnimation
-}
-
 const defaultPageArgs = {
     fps: 60,
     delay: 1000,
@@ -32,7 +28,7 @@ function ScrollPage(args) {
 
     let nextBound = { top: 0 };
     if (nextStartElement !== null) {
-        nextStartElement.style.backgroundColor = 'cyan'
+        // nextStartElement.style.backgroundColor = 'cyan'
         nextBound = nextStartElement.getBoundingClientRect();
     }
 
@@ -42,10 +38,10 @@ function ScrollPage(args) {
         scrollY: scrollBy,
         distance,
         started() {
-            console.log("Scroll Started")
+            // console.log("Scroll Started")
         },
         onStopped(end) {
-            console.log("Scroll Stopped");
+            // console.log("Scroll Stopped");
             if (nextStartElement === null || end ) {
                 console.error("RESET Scroller");
                 if (onEnd) {
@@ -60,44 +56,6 @@ function ScrollPage(args) {
     setTimeout(anim.start, delay);
 }
 
-function Scroller(args) {
-    args = Object.assign(defaultArgs, args);
-    let looper;
-    console.log(args);
-
-    const anim = scrollByFPSAnimation({
-        fps: 60,
-        scrollY: 10,
-        // minY: 0,
-        // maxY: 3200,
-        started(loopId) {
-            looper = loopId
-            console.log('Loop Started', looper)
-        },
-        onStopped() {
-            console.log('Loop Finished', looper);
-
-            setTimeout(() => {
-                window.scrollTo(0, args.minY);
-                setTimeout(anim.start, 1000);
-            }, 2000);
-        }
-    });
-
-
-    setTimeout(anim.start, 1000);
-
-
-    // window.addEventListener('scroll', )
-    //
-    // const animation = animations[args.type];
-    //
-    // if (animation) {
-    //     setTimeout(() => {
-    //         looper = requestAnimationFrame(animation);
-    //     }, 2000);
-    // }
-}
 
 const defaultFPSAnimArgs = {
     fps: 999999,
@@ -223,20 +181,6 @@ function scrollByFPSAnimation(args) {
         start,
         stop,
     }
-}
-
-function scrollAnimation() {
-    if (loop % 2 === 0) {
-        console.log('scroll by 1')
-        window.scrollBy(0, 1);
-    }
-
-
-    if (stopped)
-        return;
-
-    loop++;
-    requestAnimationFrame(scrollAnimation);
 }
 
 module.exports = ScrollPage;

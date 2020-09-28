@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-<link href="css/main.37e6d095508dc9788315.css" rel="stylesheet"></head>
+<link href="css/main.1c7f5b4ecc480620a10f.css" rel="stylesheet"></head>
 <body>
-    <div class="header">
-        <div class="header-main">
-
-        </div>
-        <div class="announcement">
-        </div>
+    <div id="header" class="header">
+        <div class="header-main"></div>
+        <div class="announcement"></div>
     </div>
     <table id="list">
         <tr data-repeatable data-count="80">
@@ -22,8 +19,64 @@
         </tr>
     </table>
     <div id="test"></div>
-    <div class="footer">
-        
+    <div id="footer" class="footer">
+        <span class="screen-id">Screen 1 of 4</span>
+        <span class="range">A Name Range From Me To You</span>
     </div>
-<script src="js/main-fd9d9db9894de113ded1.js"></script></body>
+<script src="js/main-d7a03a53678b228e882e.js"></script></body>
+<script>
+
+    // below is an example with only 5 parameters exposed. everything else is handled in function.
+    // this mean it does in fact require a header, footer, and items that have data-id attributes
+    if (autoScrollerMin) {
+        autoScrollerMin({
+            fps: 60,
+            delay: 5000,
+            scrollBy: 5,
+            onEnd() {
+                window.scrollTo(0, 0);
+                location.reload();
+            }
+        })
+    }
+
+    // below is example of autoScroll with all parameters exposed. you set your header height and container height
+    // as well as item heights
+    // -----------------------
+    // var header = document.getElementById('header');
+    // var footer = document.getElementById('footer');
+    // var table = document.getElementById('list');
+    // var items = document.getElementsByTagName('tr');
+    //
+    // var itemHeight, containerHeight = window.innerHeight;
+    // if (header) {
+    //     containerHeight -= header.clientHeight;
+    //     table.style.paddingTop = header.clientHeight + "px"
+    // }
+    // if (footer) {
+    //     containerHeight -= footer.clientHeight;
+    //     table.style.paddingBottom = footer.clientHeight + "px"
+    // }
+    // if (items && items.length > 0) {
+    //     var item = items.item(0);
+    //     itemHeight = item.clientHeight;
+    // }
+    //
+    // if (autoScroller) {
+    //     // autoScroller({
+    //     //     containerHeight,
+    //     //     fps: 60,
+    //     //     delay: 5000,
+    //     //     scrollBy: 5,
+    //     //     itemHeight: itemHeight ? itemHeight : 0,
+    //     //     marginTop: header.clientHeight,
+    //     //     lastItemId: Number.parseInt(items[items.length - 1].getAttribute('data-id')),
+    //     //     onEnd() {
+    //     //         window.scrollTo(0, 0);
+    //     //         location.reload();
+    //     //     }
+    //     // });
+    // }
+    // console.log(autoScroller);
+</script>
 </html>
