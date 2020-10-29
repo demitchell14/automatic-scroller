@@ -12,14 +12,20 @@ import './style/main.scss';
         const table = document.getElementById('list');
 
         let containerHeight = window.innerHeight;
+
         if (header) {
             containerHeight -= header.clientHeight;
-            table.style.paddingTop = header.clientHeight + "px"
+            table.style.marginTop = header.clientHeight + "px"
         }
         if (footer) {
             containerHeight -= footer.clientHeight;
-            table.style.paddingBottom = footer.clientHeight + "px"
+            table.style.marginBottom = footer.clientHeight + "px"
         }
+
+        // console.log({
+        //     containerHeight,
+        //     tableStyle: table.style,
+        // })
 
         return function(args) {
             const { fps, delay, scrollBy, onEnd } = args;

@@ -19,7 +19,7 @@ function ScrollPage(args) {
     const { fps, delay, scrollBy, containerHeight, itemHeight, startId, marginTop, lastItemId, onEnd } = args;
 
     function getNextStartId() {
-        const next = Number.parseInt((containerHeight / itemHeight).toFixed(0)) - 1;
+        const next = Number.parseInt((Math.round(containerHeight / itemHeight)).toFixed(0)) - 1;
         return next;
     }
 
@@ -32,7 +32,7 @@ function ScrollPage(args) {
         nextBound = nextStartElement.getBoundingClientRect();
     }
 
-    const distance = nextBound.top - marginTop;
+    let distance = nextBound.top - marginTop;
     const anim = scrollByFPSAnimation({
         fps,
         scrollY: scrollBy,
@@ -155,16 +155,17 @@ function scrollByFPSAnimation(args) {
     }
 
     function scrollListener(evt) {
-        const margin = Number.parseInt(getComputedStyle(document.body).marginTop) + Number.parseInt(getComputedStyle(document.body).marginBottom);
+        const table = document.getElementById('list')
+        const margin = Number.parseInt(getComputedStyle(table).marginTop) + Number.parseInt(getComputedStyle(table).marginBottom);
 
         const pageHeight = document.body.scrollHeight + margin;
         const maxScroll = pageHeight - window.scrollY - window.innerHeight;
 
         if (args.distance) {
             travelled += maxDistance > window.scrollY ? window.scrollY - maxDistance : scrollY;
-            if (travelled >= args.distance || window.scrollY + window.innerHeight >= document.body.scrollHeight + margin) {
+            if (travelled >= args.distance || window.scrollY + window.innerHeight - margin >= document.body.clientHeight) {
                 cancelAnimationFrame(id)
-                stop(window.scrollY + window.innerHeight >= document.body.scrollHeight + margin);
+                stop(window.scrollY + window.innerHeight - margin >= document.body.clientHeight);
                 return;
             }
         }
